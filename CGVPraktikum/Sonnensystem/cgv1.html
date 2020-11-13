@@ -1,6 +1,5 @@
 ﻿<!--Copyright © 2020 Raoul Müller. All rights reserved.-->
 
-<!--todo: Ergänzen Sie ihr Programm um die beiden Marsmonde unter Berücksichtigung von Umlaufzeiten, Umlaufrichtungen und Eigenrotation.-->
 <!--todo: Recherchieren Sie zum Thema Skybox in Babylon.js und ergänzen Sie eine passende Skybox.-->
 
 <!DOCTYPE html>
@@ -31,7 +30,7 @@
         const scene = new BABYLON.Scene(engine);
 
         // defining the point of view
-        new BABYLON.ArcRotateCamera("camera", -Math.PI / 4.0, 0.25 * Math.PI, 4.0, new BABYLON.Vector3(0, 0, 0), scene);
+        new BABYLON.ArcRotateCamera("camera", -Math.PI / 4.0, 0.25 * Math.PI, 20.0, new BABYLON.Vector3(0, 0, 0), scene);
         scene.activeCamera.attachControl(canvas);
 
         // defining the light source
@@ -42,6 +41,13 @@
         scene.clearColor = new BABYLON.Color3(0.05, 0.05, 0.2);
 
         // creating the objects, adding their materials and adding them to the scene
+        const sun = BABYLON.Mesh.CreateSphere("sun", 10.0, 1, scene);
+        const sunMaterial = new BABYLON.StandardMaterial("sunMaterial", scene);
+        sunMaterial.diffuseTexture = new BABYLON.Texture("assets/sun.jpg", scene);
+        sunMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        sunMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
+        sun.material = sunMaterial;
+
         const earth = BABYLON.Mesh.CreateSphere("earth", 30.0, 0.3, scene);
         const earthMaterial = new BABYLON.StandardMaterial("earthMaterial", scene);
         earthMaterial.diffuseTexture = new BABYLON.Texture("assets/earth.jpg", scene);
@@ -60,12 +66,14 @@
         moonMaterial.diffuseTexture.uScale = -1;
         moon.material = moonMaterial;
 
-        const sun = BABYLON.Mesh.CreateSphere("sun", 10.0, 0.05, scene);
-        const sunMaterial = new BABYLON.StandardMaterial("sunMaterial", scene);
-        sunMaterial.diffuseTexture = new BABYLON.Texture("assets/sun.jpg", scene);
-        sunMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-        sunMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
-        sun.material = sunMaterial;
+        const satellite = BABYLON.Mesh.CreateSphere("satellite", 20.0, 0.05, scene);
+        const satelliteMaterial = new BABYLON.StandardMaterial("satelliteMaterial", scene);
+        satelliteMaterial.diffuseTexture = new BABYLON.Texture("assets/metal.jpg", scene);
+        satelliteMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        satelliteMaterial.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+        satelliteMaterial.diffuseTexture.vScale = -1;
+        satelliteMaterial.diffuseTexture.uScale = -1;
+        satellite.material = satelliteMaterial;
 
         const mars = BABYLON.Mesh.CreateSphere("mars", 30.0, 0.25, scene);
         const marsMaterial = new BABYLON.StandardMaterial("marsMaterial", scene);
@@ -76,47 +84,42 @@
         marsMaterial.diffuseTexture.uScale = -1;
         mars.material = marsMaterial;
 
-        const satellite = BABYLON.Mesh.CreateSphere("satellite", 20.0, 0.05, scene);
-        const satelliteMaterial = new BABYLON.StandardMaterial("satelliteMaterial", scene);
-        satelliteMaterial.diffuseTexture = new BABYLON.Texture("assets/metal.jpg", scene);
-        satelliteMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
-        satelliteMaterial.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
-        satelliteMaterial.diffuseTexture.vScale = -1;
-        satelliteMaterial.diffuseTexture.uScale = -1;
-        satellite.material = satelliteMaterial;
+        const phobos = BABYLON.Mesh.CreateSphere("phobos", 20.0, 0.1, scene);
+        const phobosMaterial = new BABYLON.StandardMaterial("phobosMaterial", scene);
+        // source: https://www.deviantart.com/askaniy/art/Phobos-Texture-Map-784146561
+        phobosMaterial.diffuseTexture = new BABYLON.Texture("assets/phobos.png", scene);
+        phobosMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        phobosMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        phobosMaterial.diffuseTexture.vScale = -1
+        phobosMaterial.diffuseTexture.uScale = -1;
+        phobos.material = phobosMaterial;
 
-        // adding coordinate axes
-        const xAxis = BABYLON.Mesh.CreateCylinder("xAxis", 0.2, 0.01, 0.01, 4, scene);
-        const xAxisMaterial = new BABYLON.StandardMaterial("xAxisMaterial", scene);
-        xAxisMaterial.emissiveColor = new BABYLON.Color3(1, 0, 0); // red
-        xAxis.material = xAxisMaterial;
-        xAxis.position.x = 0.1;
-        xAxis.rotation.z = 0.5 * Math.PI;
-
-        const yAxis = BABYLON.Mesh.CreateCylinder("yAxis", 0.2, 0.01, 0.01, 4, scene, false);
-        const yAxisMaterial = new BABYLON.StandardMaterial("yAxisMaterial", scene);
-        yAxisMaterial.emissiveColor = new BABYLON.Color3(1, 1, 0); // yellow
-        yAxis.material = yAxisMaterial;
-        yAxis.position.y = 0.1;
-        yAxis.rotation.z = 0.0;
-
-        const zAxis = BABYLON.Mesh.CreateCylinder("zAxis", 0.2, 0.01, 0.01, 4, scene, false);
-        const zAxisMaterial = new BABYLON.StandardMaterial("zAxisMaterial", scene);
-        zAxisMaterial.emissiveColor = new BABYLON.Color3(0, 1, 0); // green
-        zAxis.material = zAxisMaterial;
-        zAxis.position.z = 0.1;
-        zAxis.rotation.x = 0.5 * Math.PI;
+        const deimos = BABYLON.Mesh.CreateSphere("deimos", 20.0, 0.1, scene);
+        const deimosMaterial = new BABYLON.StandardMaterial("deimosMaterial", scene);
+        // source: https://www.deviantart.com/magentameteorite/art/Fictional-Deimos-Texture-Map-732067610
+        deimosMaterial.diffuseTexture = new BABYLON.Texture("assets/deimos.jpg", scene);
+        deimosMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        deimosMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        deimosMaterial.diffuseTexture.vScale = -1
+        deimosMaterial.diffuseTexture.uScale = -1;
+        deimos.material = deimosMaterial;
 
         scene.beforeRender = function () {
             //==========================================================================================================
-            const day = 365.24 / 60 * new Date().getTime() / 1000; // one year should be one minute
-
             const twoPi = 2 * Math.PI;
+
+            // the task says one year should last one minute, but for the mars moons this is too fast (aliasing)
+            const daysPerMinute = 60; //365.24;
+            const day = daysPerMinute / 60 * new Date().getTime() / 1000;
+
+            // source: https://spacemath.gsfc.nasa.gov/sun/4Page1.pdf
+            const sunDaysInDays = 26.6;
+            sun.rotation.y = -day / sunDaysInDays * twoPi;
 
             // define natural constants, calculate positions and angles, assign them to the objects
             const earthYearInDays = 365.24;
             const earthDayInDays = 1;
-            const distanceEarthSun = 1;
+            const distanceEarthSun = 3;
             const earthX = distanceEarthSun * Math.sin(-day / earthYearInDays * twoPi);
             const earthZ = distanceEarthSun * Math.cos(-day / earthYearInDays * twoPi);
             const earthAngle = -day / earthDayInDays * twoPi;
@@ -128,7 +131,7 @@
             const moonDayInDays = moonYearInDays;
             const distanceMoonEarth = 0.5;
             const moonX = earthX + distanceMoonEarth * Math.sin(-day / moonYearInDays * twoPi);
-            const moonZ = earthZ + distanceMoonEarth * Math.cos(-day / moonYearInDays * twoPi)
+            const moonZ = earthZ + distanceMoonEarth * Math.cos(-day / moonYearInDays * twoPi);
             const moonAngle = (-day / moonDayInDays + 0.25) * twoPi;
             moon.position.x = moonX;
             moon.position.z = moonZ;
@@ -136,7 +139,7 @@
 
             const satelliteYearInDays = moonDayInDays / 3;
             const satelliteDayInDays = satelliteYearInDays;
-            const distanceSatelliteMoon = 0.25;
+            const distanceSatelliteMoon = 0.125;
             const satelliteX = moonX + distanceSatelliteMoon * Math.sin(-day / satelliteYearInDays * twoPi);
             const satelliteZ = moonZ + distanceSatelliteMoon * Math.cos(-day / satelliteYearInDays * twoPi);
             const satelliteAngle = -day / satelliteDayInDays * twoPi;
@@ -146,13 +149,39 @@
 
             const marsYearInDays = 687;
             const marsDayInDays = 1 + 39 / 60 / 24;
-            const distanceMarsSun = 2;
+            const distanceMarsSun = 5;
             const marsX = distanceMarsSun * Math.sin(-day / marsYearInDays * twoPi);
             const marsZ = distanceMarsSun * Math.cos(-day / marsYearInDays * twoPi);
             const marsAngle = -day / marsDayInDays * twoPi;
             mars.position.x = marsX;
             mars.position.z = marsZ;
             mars.rotation.y = marsAngle;
+
+            // "[Phobos] benötigt für einen Umlauf nur 7 Stunden, 39 Minuten und 12 Sekunden.
+            // [Phobos] wendet dem Mars immer dieselbe Seite zu."
+            // source: https://de.wikipedia.org/wiki/Phobos_(Mond)#Eigenschaften
+            const phobosYearInDays = (7 + (39 + 12 / 60) / 60) / 24;
+            const phobosDayInDays = phobosYearInDays;
+            const distancePhobosMars = 0.25;
+            const phobosX = marsX + distancePhobosMars * Math.sin(-day / phobosYearInDays * twoPi);
+            const phobosZ = marsZ + distancePhobosMars * Math.cos(-day / phobosYearInDays * twoPi);
+            const phobosAngle = -day / phobosDayInDays * twoPi;
+            phobos.position.x = phobosX;
+            phobos.position.z = phobosZ;
+            phobos.rotation.y = phobosAngle;
+
+            // "[Deimos] benötigt für einen Marsumlauf 1 Tag, 6 Stunden und 18 Minuten.
+            // [Deimos] wendet dem Mars immer dieselbe Seite zu."
+            // source: https://de.wikipedia.org/wiki/Deimos_(Mond)#Umlaufbahn
+            const deimosYearInDays = 1 + (6 + 18 / 60) / 24;
+            const deimosDayInDays = deimosYearInDays;
+            const distanceDeimosMars = 0.5;
+            const deimosX = marsX + distanceDeimosMars * Math.sin(-day / deimosYearInDays * twoPi);
+            const deimosZ = marsZ + distanceDeimosMars * Math.cos(-day / deimosYearInDays * twoPi);
+            const deimosAngle = -day / deimosDayInDays * twoPi;
+            deimos.position.x = deimosX;
+            deimos.position.z = deimosZ;
+            deimos.rotation.y = deimosAngle;
             //==========================================================================================================
         };
 
