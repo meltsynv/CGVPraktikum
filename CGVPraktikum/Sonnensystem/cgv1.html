@@ -12,81 +12,139 @@
             margin:0;
             overflow:hidden;
         }
+
+        .speedHandler {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+        }
+        label{
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
+    <div class="speedHandler">
+        <label>Speed:</label>
+        <input id="daySpeed" type="range" min="0" max="100" value="0">
+    </div>
     <canvas id="renderCanvas"></canvas>
 	<script>
     // Check support
     if (!BABYLON.Engine.isSupported()) {
         window.alert('Browser not supported');
     } else {
-		var canvas = document.getElementById("renderCanvas");
-		var engine = new BABYLON.Engine(canvas, true);
+		let canvas = document.getElementById("renderCanvas");
+        let speedHandlerInput = document.getElementById("daySpeed");
+		let engine = new BABYLON.Engine(canvas, true);
 		
-		var scene = new BABYLON.Scene(engine);
+		let scene = new BABYLON.Scene(engine);
 
 		// Reguläre Kamera mit festem Blickpunkt
-        var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", -Math.PI/4.0, 0.25*Math.PI, 4.0, new BABYLON.Vector3(0, 0, 0), scene);
+        let camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", -Math.PI/4.0, 0.25*Math.PI, 4.0, new BABYLON.Vector3(0, 0, 0), scene);
 
 
         // Kamera für VR mit Device Orientation zum Herumschauen 
 		//var camera = new BABYLON.DeviceOrientationCamera("ArcRotateCamera", new BABYLON.Vector3(1, 1, 1), scene);
 		//camera.setCameraRigMode(20,{interaxialDistance: 0.0637});
+
+        // 3D Object definition
+		let sun = BABYLON.Mesh.CreateSphere("Sun", 10.0, 1, scene);
+		let earth = BABYLON.Mesh.CreateSphere("Earth", 30.0, 0.3, scene);
+		let moon = BABYLON.Mesh.CreateSphere("Moon", 20.0, 0.15, scene);
+		let mars = BABYLON.Mesh.CreateSphere("Mars", 30.0, 0.25, scene);
+        let satellite = BABYLON.Mesh.CreateSphere("Satellite", 20.0, 0.05, scene);
+        let deimos = BABYLON.Mesh.CreateSphere("Deimos", 10.0, 0.1, scene);
+        let phobos = BABYLON.Mesh.CreateSphere("Phobos", 10.0, 0.1, scene);
+
+        // 3D Mesh definition for Objects
+		let earthMaterial = new BABYLON.StandardMaterial("default1", scene);
+		earthMaterial.diffuseTexture = new BABYLON.Texture("assets/earth.jpg", scene);
+		earthMaterial.specularColor = new BABYLON.Color3(0.1,0.1,0.1);
+		earthMaterial.emissiveColor = new BABYLON.Color3(0.2,0.2,0.2);
+		earthMaterial.diffuseTexture.vScale = -1;
+		earthMaterial.diffuseTexture.uScale = -1;
 		
-		var sun = BABYLON.Mesh.CreateSphere("Sun", 10.0, 0.05, scene);
-		var earth = BABYLON.Mesh.CreateSphere("Earth", 30.0, 0.3, scene);	
-		var moon = BABYLON.Mesh.CreateSphere("Moon", 20.0, 0.15, scene);
-		var mars = BABYLON.Mesh.CreateSphere("Mars", 30.0, 0.25, scene);
-        var satellite = BABYLON.Mesh.CreateSphere("Satellite", 20.0, 0.05, scene);
-				
-		var material1 = new BABYLON.StandardMaterial("default1", scene);
-		material1.diffuseTexture = new BABYLON.Texture("assets/earth.jpg", scene);
-		material1.specularColor = new BABYLON.Color3(0.1,0.1,0.1);
-		material1.emissiveColor = new BABYLON.Color3(0.2,0.2,0.2);
-		material1.diffuseTexture.vScale = -1;
-		material1.diffuseTexture.uScale = -1;
-		
-		var material2 = new BABYLON.StandardMaterial("default2", scene);
-		material2.diffuseTexture = new BABYLON.Texture("assets/moon.jpg", scene);
-		material2.specularColor = new BABYLON.Color3(0,0,0);
-		material2.emissiveColor = new BABYLON.Color3(0.2,0.2,0.2);
-		material2.diffuseTexture.vScale = -1;
-		material2.diffuseTexture.uScale = -1;
+		let moonMaterial = new BABYLON.StandardMaterial("default2", scene);
+		moonMaterial.diffuseTexture = new BABYLON.Texture("assets/moon.jpg", scene);
+		moonMaterial.specularColor = new BABYLON.Color3(0,0,0);
+		moonMaterial.emissiveColor = new BABYLON.Color3(0.2,0.2,0.2);
+		moonMaterial.diffuseTexture.vScale = -1;
+		moonMaterial.diffuseTexture.uScale = -1;
 
-		var material3 = new BABYLON.StandardMaterial("default3", scene);
-		material3.diffuseTexture = new BABYLON.Texture("assets/sun.jpg", scene);
-		material3.specularColor = new BABYLON.Color3(0,0,0);
-		material3.emissiveColor = new BABYLON.Color3(1,1,1);
+		let sunMaterial = new BABYLON.StandardMaterial("default3", scene);
+		sunMaterial.diffuseTexture = new BABYLON.Texture("assets/sun.jpg", scene);
+		sunMaterial.specularColor = new BABYLON.Color3(0,0,0);
+		sunMaterial.emissiveColor = new BABYLON.Color3(1,1,1);
 
-		var material4 = new BABYLON.StandardMaterial("default4", scene);
-		material4.diffuseTexture = new BABYLON.Texture("assets/mars.jpg", scene);
-		material4.specularColor = new BABYLON.Color3(0,0,0);
-		material4.emissiveColor = new BABYLON.Color3(0.2,0.2,0.2);
-		material4.diffuseTexture.vScale = -1
-		material4.diffuseTexture.uScale = -1;
+		let marsMaterial = new BABYLON.StandardMaterial("default4", scene);
+		marsMaterial.diffuseTexture = new BABYLON.Texture("assets/mars.jpg", scene);
+		marsMaterial.specularColor = new BABYLON.Color3(0,0,0);
+		marsMaterial.emissiveColor = new BABYLON.Color3(0.2,0.2,0.2);
+		marsMaterial.diffuseTexture.vScale = -1
+		marsMaterial.diffuseTexture.uScale = -1;
 
-        var material5 = new BABYLON.StandardMaterial("default5", scene);
-        material5.diffuseTexture = new BABYLON.Texture("assets/metal.jpg", scene);
-        material5.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
-        material5.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
-        material5.diffuseTexture.vScale = -1;
-        material5.diffuseTexture.uScale = -1;
+        let metalMaterial = new BABYLON.StandardMaterial("default5", scene);
+        metalMaterial.diffuseTexture = new BABYLON.Texture("assets/metal.jpg", scene);
+        metalMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        metalMaterial.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+        metalMaterial.diffuseTexture.vScale = -1;
+        metalMaterial.diffuseTexture.uScale = -1;
 
-		earth.material = material1;
-		moon.material = material2;
-		sun.material = material3;
-		mars.material = material4;
-		satellite.material = material5;
+        // Marsmond Deimos
+        let deimosMaterial = new BABYLON.StandardMaterial("default5", scene);
+        deimosMaterial.diffuseTexture = new BABYLON.Texture("assets/deimos.png", scene);
+        deimosMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        deimosMaterial.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+        deimosMaterial.diffuseTexture.vScale = -1;
+        deimosMaterial.diffuseTexture.uScale = -1;
+
+        //Marsmond Phobos
+        let phobosMaterial = new BABYLON.StandardMaterial("default6", scene);
+        phobosMaterial.diffuseTexture = new BABYLON.Texture("assets/phobos.png", scene);
+        phobosMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        phobosMaterial.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+        phobosMaterial.diffuseTexture.vScale = -1;
+        phobosMaterial.diffuseTexture.uScale = -1;
+
+        //Skybox
+        let skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 1000.0}, scene);
+        let skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+        skyboxMaterial.backFaceCulling = false;
+        let files = [
+            "assets/skybox/space_left.jpg",
+            "assets/skybox/space_up.jpg",
+            "assets/skybox/space_front.jpg",
+            "assets/skybox/space_right.jpg",
+            "assets/skybox/space_down.jpg",
+            "assets/skybox/space_back.jpg",
+        ];
+
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture.CreateFromImages(files, scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+
+        earth.material = earthMaterial;
+        moon.material = moonMaterial;
+        sun.material = sunMaterial;
+        mars.material = marsMaterial;
+        satellite.material = metalMaterial;
+        skybox.material = skyboxMaterial;
 
 		// Show coordinate system, BabylonJS uses left-handed coordinates!
 		// x-axis: red, y-axis: yellow, z-axis: green
-		var cylinder1 = BABYLON.Mesh.CreateCylinder("cylinder1", 0.2, 0.01, 0.01, 4, scene);
-		var cylinder2 = BABYLON.Mesh.CreateCylinder("cylinder2", 0.2, 0.01, 0.01, 4, scene, false);
-		var cylinder3 = BABYLON.Mesh.CreateCylinder("cylinder3", 0.2, 0.01, 0.01, 4, scene, false);
-		var cmat1 = new BABYLON.StandardMaterial("cmat1", scene);
-		var cmat2 = new BABYLON.StandardMaterial("cmat2", scene);
-		var cmat3 = new BABYLON.StandardMaterial("cmat3", scene);
+		let cylinder1 = BABYLON.Mesh.CreateCylinder("cylinder1", 0.2, 0.01, 0.01, 4, scene);
+		let cylinder2 = BABYLON.Mesh.CreateCylinder("cylinder2", 0.2, 0.01, 0.01, 4, scene, false);
+		let cylinder3 = BABYLON.Mesh.CreateCylinder("cylinder3", 0.2, 0.01, 0.01, 4, scene, false);
+		let cmat1 = new BABYLON.StandardMaterial("cmat1", scene);
+		let cmat2 = new BABYLON.StandardMaterial("cmat2", scene);
+		let cmat3 = new BABYLON.StandardMaterial("cmat3", scene);
 		cmat1.emissiveColor = new BABYLON.Color3(1,0,0); // red
 		cmat2.emissiveColor = new BABYLON.Color3(1,1,0); // yellow
 		cmat3.emissiveColor = new BABYLON.Color3(0,1,0); // green
@@ -100,22 +158,22 @@
 		cylinder3.position.z = 0.1;
 		cylinder3.rotation.x = 0.5*Math.PI;		
 		
-		var light = new BABYLON.PointLight("dir01", new BABYLON.Vector3(-0.0, -0.0, 0.0), scene);
+		let light = new BABYLON.PointLight("dir01", new BABYLON.Vector3(-0.0, -0.0, 0.0), scene);
 		light.diffuse = new BABYLON.Color3(1.0, 1.0, 1.0);
 
 		scene.clearColor = new BABYLON.Color3(0.05,0.05,0.2);
 
-		var d = new Date();
-		var startTime = d.getTime();
-		var lastTime  = startTime;
+		let d = new Date();
+		let startTime = d.getTime();
+		let lastTime  = startTime;
 
-		var sim_year     = 1.0;                             // one simulated earth year in minutes
-		var sim_day      = sim_year / 365.24;               // one simulated earth day in minutes
-		var sim_month    = sim_year / (365.24 / 27.3);      // one simulated moon loop in minutes
-		var sim_mars_sol = sim_year * (687.0 / 354.24) 	    // one simulated mars year in minutes
+		let sim_year     = 1.0;                             // one simulated earth year in minutes
+		let sim_day      = sim_year / 365.24;               // one simulated earth day in minutes
+		let sim_month    = sim_year / (365.24 / 27.3);      // one simulated moon loop in minutes
+		let sim_mars_sol = sim_year * (687.0 / 365.24) 	    // one simulated mars year in minutes
 
-		var moon_local_pos = new BABYLON.Vector3(-1.0, 0, 0);
-		var satellite_local_pos = new BABYLON.Vector3(-1.0, 0, 0);
+		let moon_local_pos = new BABYLON.Vector3(-1.0, 0, 0);
+		let satellite_local_pos = new BABYLON.Vector3(-1.0, 0, 0);
 
 		// Set initial earth position
 		earth.position.x = 1.0;
@@ -136,38 +194,95 @@
         satellite.position.x = moon.position.x - 0.2;
 		satellite.position.y = 0.0;
 		satellite.position.z = 0.0;
-		
-		scene.beforeRender = function() {
-			var d 		  = new Date();
-			var time      = d.getTime();        // get milliseconds since 1970
-			var elapsed_t = time - startTime;   // milliseconds since start
-			var delta_t   = time - lastTime;    // milliseconds since last frame
-			lastTime      = time;
 
-			var min2ms  = 1000.0 * 60.0;        // milliseconds in minutes
+        speedHandlerInput.addEventListener("change", function (e) {
+            scene.beforeRender = function() {
+                const twoPi = 2 * Math.PI;
 
-/*
-			// Earth position and rotation
-			earth.position.x = ...... ;
-			earth.position.z = ...... ;
+                // the task says one year should last one minute, but for the mars moons this is too fast (aliasing)
+                // todo: provide option to change this value from the browser
+                let speed = 0;
+                speed = document.getElementById("daySpeed").value;
+                const daysPerMinute = 60 + speed; //365.24;
+                const day = daysPerMinute / 60 * new Date().getTime() / 1000;
 
-			earth.rotation.y = ......;
-*/
-			// Moon position and rotation
-			// ...
+                // source: https://spacemath.gsfc.nasa.gov/sun/4Page1.pdf
+                const sunDaysInDays = 26.6;
+                sun.rotation.y = -day / sunDaysInDays * twoPi;
 
-			// Satellite position and rotation
-			// ...
-			
-			// Mars position and rotation
-			// ...
+                // define natural constants, calculate positions and angles, assign them to the objects
+                const earthYearInDays = 365.24;
+                const earthDayInDays = 1;
+                const distanceEarthSun = 3;
+                const earthX = distanceEarthSun * Math.sin(-day / earthYearInDays * twoPi);
+                const earthZ = distanceEarthSun * Math.cos(-day / earthYearInDays * twoPi);
+                const earthAngle = -day / earthDayInDays * twoPi;
+                earth.position.x = earthX;
+                earth.position.z = earthZ;
+                earth.rotation.y = earthAngle;
 
+                const moonYearInDays = 27.3;
+                const moonDayInDays = moonYearInDays;
+                const distanceMoonEarth = 0.5;
+                const moonX = earthX + distanceMoonEarth * Math.sin(-day / moonYearInDays * twoPi);
+                const moonZ = earthZ + distanceMoonEarth * Math.cos(-day / moonYearInDays * twoPi);
+                const moonAngle = (-day / moonDayInDays + 0.25) * twoPi;
+                moon.position.x = moonX;
+                moon.position.z = moonZ;
+                moon.rotation.y = moonAngle;
+
+                const satelliteYearInDays = moonDayInDays / 3;
+                const satelliteDayInDays = satelliteYearInDays;
+                const distanceSatelliteMoon = 0.125;
+                const satelliteX = moonX + distanceSatelliteMoon * Math.sin(-day / satelliteYearInDays * twoPi);
+                const satelliteZ = moonZ + distanceSatelliteMoon * Math.cos(-day / satelliteYearInDays * twoPi);
+                const satelliteAngle = -day / satelliteDayInDays * twoPi;
+                satellite.position.x = satelliteX;
+                satellite.position.z = satelliteZ;
+                satellite.rotation.y = satelliteAngle;
+
+                const marsYearInDays = 687;
+                const marsDayInDays = 1 + 39 / 60 / 24;
+                const distanceMarsSun = 5;
+                const marsX = distanceMarsSun * Math.sin(-day / marsYearInDays * twoPi);
+                const marsZ = distanceMarsSun * Math.cos(-day / marsYearInDays * twoPi);
+                const marsAngle = -day / marsDayInDays * twoPi;
+                mars.position.x = marsX;
+                mars.position.z = marsZ;
+                mars.rotation.y = marsAngle;
+
+                // "[Phobos] benötigt für einen Umlauf nur 7 Stunden, 39 Minuten und 12 Sekunden.
+                // [Phobos] wendet dem Mars immer dieselbe Seite zu."
+                // source: https://de.wikipedia.org/wiki/Phobos_(Mond)#Eigenschaften
+                const phobosYearInDays = (7 + (39 + 12 / 60) / 60) / 24;
+                const phobosDayInDays = phobosYearInDays;
+                const distancePhobosMars = 0.25;
+                const phobosX = marsX + distancePhobosMars * Math.sin(-day / phobosYearInDays * twoPi);
+                const phobosZ = marsZ + distancePhobosMars * Math.cos(-day / phobosYearInDays * twoPi);
+                const phobosAngle = -day / phobosDayInDays * twoPi;
+                phobos.position.x = phobosX;
+                phobos.position.z = phobosZ;
+                phobos.rotation.y = phobosAngle;
+
+                // "[Deimos] benötigt für einen Marsumlauf 1 Tag, 6 Stunden und 18 Minuten.
+                // [Deimos] wendet dem Mars immer dieselbe Seite zu."
+                // source: https://de.wikipedia.org/wiki/Deimos_(Mond)#Umlaufbahn
+                const deimosYearInDays = 1 + (6 + 18 / 60) / 24;
+                const deimosDayInDays = deimosYearInDays;
+                const distanceDeimosMars = 0.5;
+                const deimosX = marsX + distanceDeimosMars * Math.sin(-day / deimosYearInDays * twoPi);
+                const deimosZ = marsZ + distanceDeimosMars * Math.cos(-day / deimosYearInDays * twoPi);
+                const deimosAngle = -day / deimosDayInDays * twoPi;
+                deimos.position.x = deimosX;
+                deimos.position.z = deimosZ;
+                deimos.rotation.y = deimosAngle;
 //			console.log(BABYLON.Tools.GetFps().toFixed() + " fps");
-		};
+            };
+        })
 
         scene.activeCamera.attachControl(canvas);
 		// Render loop
-		var renderLoop = function () {
+		let renderLoop = function () {
 			// Start new frame
 			engine.beginFrame();
 
