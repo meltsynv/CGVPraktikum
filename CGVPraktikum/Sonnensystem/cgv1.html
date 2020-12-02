@@ -22,10 +22,12 @@
             flex-direction: column;
             color: #fff;
         }
+
         label {
             font-size: 20px;
             margin-bottom: 10px;
         }
+
         .speedMarker {
             display: flex;
             flex-direction: row;
@@ -35,9 +37,10 @@
     </style>
 </head>
 <body>
+<!--Teilaufgabe 2-->
 <div class="speedHandler">
     <label id="speedLabel">Speed:</label>
-    <input id="daySpeed" type="range" min="1" max="20" value="0">
+    <input id="daySpeed" type="range" min="1" max="20" value="1">
     <div class="speedMarker">
         <span>1</span>
         <span>20</span>
@@ -56,12 +59,7 @@
         let scene = new BABYLON.Scene(engine);
 
         // Reguläre Kamera mit festem Blickpunkt
-        let camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", -Math.PI / 4.0, 0.25 * Math.PI, 4.0, new BABYLON.Vector3(0, 0, 0), scene);
-
-
-        // Kamera für VR mit Device Orientation zum Herumschauen 
-        //var camera = new BABYLON.DeviceOrientationCamera("ArcRotateCamera", new BABYLON.Vector3(1, 1, 1), scene);
-        //camera.setCameraRigMode(20,{interaxialDistance: 0.0637});
+        new BABYLON.ArcRotateCamera("ArcRotateCamera", -Math.PI / 4.0, 0.25 * Math.PI, 4.0, new BABYLON.Vector3(0, 0, 0), scene);
 
         // 3D Object definition
         let sun = BABYLON.Mesh.CreateSphere("Sun", 10.0, 1, scene);
@@ -123,7 +121,7 @@
         phobosMaterial.diffuseTexture.vScale = -1;
         phobosMaterial.diffuseTexture.uScale = -1;
 
-        // Skybox
+        // Bonusteil 2
         let skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 1000.0}, scene);
         let skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
         skyboxMaterial.backFaceCulling = false;
@@ -135,7 +133,6 @@
             "assets/skybox/space_down.jpg",
             "assets/skybox/space_back.jpg",
         ];
-
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture.CreateFromImages(files, scene);
         skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
         skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
@@ -157,19 +154,20 @@
             let speed = document.getElementById("daySpeed").value;
             document.getElementById("speedLabel").innerHTML = "Speed: " + speed;
         });
-
+//========================================================================================================================
         scene.beforeRender = function () {
             const twoPi = 2 * Math.PI;
 
-            // the task says one year should last one minute, but for the mars moons this is too fast (aliasing)
-            const daysPerMinute = 60 * document.getElementById("daySpeed").value; //365.24;
+            // Teilaufgabe 2
+            const daysPerMinute = 60 * document.getElementById("daySpeed").value;
             const day = daysPerMinute / 60 * new Date().getTime() / 1000;
+//========================================================================================================================
 
             // source: https://spacemath.gsfc.nasa.gov/sun/4Page1.pdf
             const sunDaysInDays = 26.6;
             sun.rotation.y = -day / sunDaysInDays * twoPi;
 
-            // define natural constants, calculate positions and angles, assign them to the objects
+            // Teilaufgabe 1 und 3
             const earthYearInDays = 365.24;
             const earthDayInDays = 1;
             const distanceEarthSun = 3;
@@ -180,6 +178,7 @@
             earth.position.z = earthZ;
             earth.rotation.y = earthAngle;
 
+            // Teilaufgabe 4
             const moonYearInDays = 27.3;
             const moonDayInDays = moonYearInDays;
             const distanceMoonEarth = 0.5;
@@ -190,6 +189,7 @@
             moon.position.z = moonZ;
             moon.rotation.y = moonAngle;
 
+            // Teilaufgabe 5
             const satelliteYearInDays = moonDayInDays / 3;
             const satelliteDayInDays = satelliteYearInDays;
             const distanceSatelliteMoon = 0.125;
@@ -200,6 +200,7 @@
             satellite.position.z = satelliteZ;
             satellite.rotation.y = satelliteAngle;
 
+            // Teilaufgabe 6
             const marsYearInDays = 687;
             const marsDayInDays = 1 + 39 / 60 / 24;
             const distanceMarsSun = 5;
@@ -209,6 +210,8 @@
             mars.position.x = marsX;
             mars.position.z = marsZ;
             mars.rotation.y = marsAngle;
+
+            // Bonusteil 1
 
             // "[Phobos] benötigt für einen Umlauf nur 7 Stunden, 39 Minuten und 12 Sekunden.
             // [Phobos] wendet dem Mars immer dieselbe Seite zu."
@@ -235,7 +238,6 @@
             deimos.position.x = deimosX;
             deimos.position.z = deimosZ;
             deimos.rotation.y = deimosAngle;
-//			console.log(BABYLON.Tools.GetFps().toFixed() + " fps");
         };
 
         scene.activeCamera.attachControl(canvas);
@@ -262,3 +264,17 @@
 </script>
 </body>
 </html>
+
+<!--
+erfüllte Aufgaben:
+- Bewegung und Rotation von
+    - Sonne
+    - Erde
+    - Mond
+    - Satellit
+    - Mars
+    - Phobos
+    - Deimos
+- variable Geschwindigkeit über einen Slider einstellbar
+- Skybox
+-->
